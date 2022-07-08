@@ -1,0 +1,16 @@
+会议：
+    1、需要对样本提取的可行性进行分析，无法或难以实现需要进行优化
+    2、对于分析所需要的样本内容进行分析
+    3、在2的基础上，具体划分需要提取样本的工作，以提高效率
+
+只对jdk8之前和之后的进行区分(这里需要完整的裸代码)【完成】
+        ->、.stream、Instant.、LocalDate.、LocalTime.、LocalDateTime.、ZonedDateTime.、Period.、ZoneOffset.、Clock.、Optional.\
+“@PropertySource("classpath:config1.properties")
+@PropertySource("classpath:config2.properties")”\
+        var、copyOf(、ByteArrayOutputStream(、.transferTo、.isBlank、.strip、.stripTrailing、.stripLeading、.repeat、Pack200.、"""
+
+maven：判断有无文件pom.xml
+idea：判断有无文件.idea
+gradle：有无文件build.gradle
+springboot： 文件pom.xml中有无spring-boot-starter-parent
+这一块可能需要有经验的人士，需要 工具-特征-用途 三个方面的信息（否则水太深把握不住）

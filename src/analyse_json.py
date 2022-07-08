@@ -33,16 +33,13 @@ def analyse_englevel(namelist):
     dict_fp = open('../resources/engdict_formed.txt', 'r', encoding='utf-8')
     dict = eval(dict_fp.read())
     range = 0
-    times = 0
     print(namelist)
     for name in namelist:
         star = dict.get(name)
-        if star is not None:
-            times += 1
-            range += rank[star]
+        if star is not None and rank[star] > range:
+            range = rank[star]
     dict_fp.close()
-    if times != 0:
-        extract_info['english_level'] = range / times
+    extract_info['english_level'] = range
 
 # 提取所有函数、变量的name，并分析
 def analyse_definition(jsondata):
@@ -67,7 +64,7 @@ def analyse_definition(jsondata):
 # details 每次遍历都会重写分析输出文件
 # update 能够对目录下文件进行遍历处理
 # append 提取所有函数、变量的name
-# append 获取匹配词汇对应的等级（0~5），这里只对能够精确匹配的单词进行分析，模糊匹配误差过大
+# append 获取匹配词汇对应的等级（0~5），这里只对能够精确匹配的单词进行分析。因为模糊匹配误差过大，暂时不考虑。只根据最罕见的单词进行评级
 if __name__ == '__main__':
 
     fp = r"../logs"  # 目标文件夹
