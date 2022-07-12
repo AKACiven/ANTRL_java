@@ -1,1 +1,1 @@
-{'definition': ['tourInfoRepository', 'searchTour', 'total', 'content', 'page', 'criteria', 'pageable'], 'english_level': 1}
+{'definition': ['tourInfoRepository', 'searchTour', 'total', 'content', 'page', 'criteria', 'pageable'], 'english_level': 1.0, 'words_precision_range': 0.5, 'english_usage': 0.42857142857142855}

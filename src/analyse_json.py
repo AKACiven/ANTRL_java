@@ -1,24 +1,27 @@
+import difflib
 import json
 import os
 import re
 
-jsondata = {'packageName': '', 'className': 'HelloWorld', 'implements': [], 'extends': '', 'imports': [],
-            'fields': [{'fieldType': 'var', 'fieldDefinition': 'm'}], 'methods': [
-        {'returnType': 'void', 'methodName': 'main', 'params': [{'paramType': 'String[]', 'paramName': 'args'}],
-         'callMethods': ['8 19 System.out.println("Hello World")'],
-         'methodBody': '{System.out.println("Hello World");vari=1;charkkk=4;intk=2;}',
-         'methodvars': [{'varType': 'var', 'varDefinition': 'i'}, {'varType': 'char', 'varDefinition': 'kkk'},
-                        {'varType': 'int', 'varDefinition': 'k'}]},
-        {'returnType': 'void', 'methodName': 'jjj', 'params': [{'paramType': 'String[]', 'paramName': 'args'}],
-         'callMethods': ['14 19 System.out.println("Hello World")'],
-         'methodBody': '{System.out.println("Hello World");varl=1;intaaaa=2;}',
-         'methodvars': [{'varType': 'var', 'varDefinition': 'l'}, {'varType': 'int', 'varDefinition': 'aaaa'}]}]}
+jsondata = {}
 
 # 这里变动的话还有一个地方需要改
 extract_info = {
     'definition': [],
-    'english_level': 0.0
+    'english_level': 0.0,
+    'words_precision_range': 0.0,
+    'english_usage': 0.0
 }
+# 判读用词准确程度(0~1.0)，将精准匹配和模糊匹配求比例，考虑到精准匹配要求严格，所以乘以一个系数适度扩大
+def analyse_precision(precise, diff):
+    range3 = (precise * 1.5) / diff
+    if range3 > 1.0:
+        range3 = 1
+    extract_info['words_precision_range'] = range3
+
+# 判断是否经常接触英语，通过分析模糊匹配成功比例
+def analyse_englishusage(use, whole):
+    extract_info['english_usage'] = use / whole
 
 # 获取匹配词汇对应的等级（0~5.0）
 def analyse_englevel(namelist):
@@ -32,16 +35,40 @@ def analyse_englevel(namelist):
     }
     dict_fp = open('../resources/engdict_formed.txt', 'r', encoding='utf-8')
     dict = eval(dict_fp.read())
-    range = 0
-    print(namelist)
+    range1 = 0
+    times1 = 0
+    # print(namelist)
     for name in namelist:
+        # 大小写敏感匹配
         star = dict.get(name)
-        if star is not None and rank[star] > range:
-            range = rank[star]
-    dict_fp.close()
-    extract_info['english_level'] = range
+        if star is not None and rank[star] > range1:
+            times1 += 1
+            range1 = rank[star]
 
-# 提取所有函数、变量的name，并分析
+    dict_w_fp = open('../resources/engdict_words.txt', 'r', encoding='utf-8')
+    dict_w = eval(dict_w_fp.read())
+    range2 = 0
+    times2 = 0
+    for name in namelist:
+        # 模糊匹配，此处精确系数设置的较高，且匹配结果只一个
+        match = difflib.get_close_matches(name, dict_w, 1, cutoff=0.9)
+        if len(match):
+            times2 += 1
+            star = dict.get(match[0])
+            if star is not None and rank[star] > range2:
+                range2 = rank[star]
+    # print(range2)
+
+    # 此处设置大小写敏感匹配和模糊匹配的权重，rank越高词汇等级越高
+    extract_info['english_level'] = range1 * 0.5 + range2 * 0.5
+    dict_fp.close()
+    dict_w_fp.close()
+    # 分析用词精准程度
+    analyse_precision(times1, times2)
+    # 分析经常使用英语
+    analyse_englishusage(times2, len(namelist))
+
+# 提取所有函数、变量的name，并交给analyse_englevel函数分析
 def analyse_definition(jsondata):
     namelist = []
     fields = jsondata['fields']

@@ -9,4 +9,5 @@ for i in rules:
     a = re.findall(i, code)
     if a:
         match.append(a[0])
+# 这里将java jdk8以及之后的常用版本特性打印
 print(match)

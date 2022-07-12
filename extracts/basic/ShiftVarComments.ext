@@ -1,1 +1,1 @@
-{'definition': ['tokens', 'rewriter', 'exitVarDecl', 'semi', 'i', 'cmtChannel', 'cmt', 'txt', 'newCmt', 'ctx', 'main', 'inputFile', 'is', 'input', 'lexer', 'tokens', 'parser', 'tree', 'walker', 'shifter', 'args'], 'english_level': 4}
+{'definition': ['tokens', 'rewriter', 'exitVarDecl', 'semi', 'i', 'cmtChannel', 'cmt', 'txt', 'newCmt', 'ctx', 'main', 'inputFile', 'is', 'input', 'lexer', 'tokens', 'parser', 'tree', 'walker', 'shifter', 'args'], 'english_level': 4.0, 'words_precision_range': 0.5, 'english_usage': 0.2857142857142857}

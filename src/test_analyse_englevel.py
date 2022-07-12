@@ -1,3 +1,5 @@
+import difflib
+
 rank = {
         '★': 5,
         '★★': 4,
@@ -10,16 +12,14 @@ namelist = ['str', 'hello', 'description', 'main', 'creditCardNumber', 'socialSe
 
 dict_fp = open('../resources/engdict_formed.txt', 'r', encoding='utf-8')
 dict = eval(dict_fp.read())
+dict_w_fp = open('../resources/engdict_words.txt', 'r', encoding='utf-8')
+dict_w = eval(dict_w_fp.read())
 range = 0
 times = 0
-print(namelist)
 for name in namelist:
-    star = dict.get(name)
-    print(star)
-    if star is not None:
+    match = difflib.get_close_matches(name, dict_w, 1, cutoff=0.9)
+    if len(match):
         times += 1
+        star = dict.get(name)
         range += rank[star]
-        print(range)
-dict_fp.close()
-if times != 0:
-    print(range / times)
+print(range / times)

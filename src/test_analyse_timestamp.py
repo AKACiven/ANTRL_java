@@ -9,7 +9,6 @@
 # print(time.localtime(os.stat(FileName).st_ctime).tm_zone)
 
 # 所以此处需要分析的是注释的时间戳内容
-# 首先分析日期的跨度
 
 # GMT: 格林威治时间
 # UTC：标准时间
@@ -18,11 +17,102 @@
 # UTC+08:00、+08:
 import re
 
-match = []
-code = "16:11:59+05:30  11:11:59 a.m. +05:30  11:11:59 PST"
-print(type(code))
-a = re.findall(r"(?<![\+|\-])(20|21|22|23|[0-1][0-9]):[0-5]\d[:[0-5]\d]*.*(a\.m\.)|(am)|(p\.m\.)|(pm)|(A\.M\.)|(AM)|(P\.M\.)|(PM)", code)
-print(a)
-# if a:
-#     match.append(a)
-# print(match)
+
+# 对活动时间进行分析 凌晨：23~7 上午：8~11 中午：12~14 下午：15~18 晚上：19~22
+def analyse_mainworktime(list_t):
+    # 用于统计
+    tmplist = [0, 0, 0, 0, 0]
+    timelist = ['凌晨', '上午', '中午', '中午', '下午', '晚上']
+    for i in list_t:
+        # 无标注 am pm
+        if isinstance(i[0], str):
+            hour = int(i[0])
+            # print(hour)
+            if 8 <= hour <= 11:
+                tmplist[1] += 1
+            if 12 <= hour <= 14:
+                tmplist[2] += 1
+            if 15 <= hour <= 18:
+                tmplist[3] += 1
+            if 19 <= hour <= 22:
+                tmplist[4] += 1
+            if 23 == hour or hour <= 7:
+                tmplist[0] += 1
+        # 有标注 am pm
+        if isinstance(i[0], tuple):
+            # 判断是否为PM
+            hour = int(i[0][0])
+            # print(hour)
+            tmp = re.findall(r"(pm|PM|p\.m|P\.M)", i[0][1])
+            if len(tmp):
+                hour = hour + 12
+            if 8 <= hour <= 11:
+                tmplist[1] += 1
+            if 12 <= hour <= 14:
+                tmplist[2] += 1
+            if 15 <= hour <= 18:
+                tmplist[3] += 1
+            if 19 <= hour <= 22:
+                tmplist[4] += 1
+            if 23 == hour or hour <= 7:
+                tmplist[0] += 1
+    print(tmplist)
+    maxtime = max(tmplist)
+    for i in [0, 1, 2, 3, 4]:
+        if tmplist[i] == maxtime:
+            match['main_worktime'].append(timelist[i])
+
+
+match = {
+    'timezone': [],
+    'recordtime_hour': [],
+    'main_worktime': []
+}
+rules_timezone = [
+    r"(\+)(20|21|22|23|[0-1]*[0-9]):[0-5]*[0-9]",
+    r"(\-)(20|21|22|23|[0-1]*[0-9]):[0-5]*[0-9]",
+    r"(UTC\+|UTC\-)(11|10|[0-9])",
+    r"(GMT\+|GMT\-)(20|21|22|23|[0-1]*[0-9])",
+    r"([A-Z][A-Z][A-Z]+)", ]
+rules_hour = [
+    r"(20|21|22|23|[0-1]*[0-9]):[0-5]*[0-9]:[0-5]*[0-9] (am|pm|AM|PM|a\.m|p\.m|A\.M|P\.M)",
+    r"(20|21|22|23|[0-1]*[0-9]):[0-5]*[0-9]:[0-5]*[0-9]\:",
+    r"(20|21|22|23|[0-1]*[0-9]):[0-5]*[0-9]:[0-5]*[0-9]\.",
+    r"(20|21|22|23|[0-1]*[0-9]):[0-5]*[0-9]:[0-5]*[0-9]",
+    r"(20|21|22|23|[0-1]*[0-9]):[0-5]*[0-9] (am|pm|AM|PM|a\.m|p\.m|A\.M|P\.M)",
+    r"(20|21|22|23|[0-1]*[0-9]):[0-5]*[0-9]", ]
+# 这里需要输入的是注释内容，规则建立于提取的单条注释中只有一个时间戳的条件，按照规则优先级进行唯一匹配
+code = [
+    "11:11:59 a.m. +05:30",
+    "12:11:59 a.m.",
+    "13:11:59 PST",
+    "13:11:59 UTC+10",
+    "13:11:59 UTC-1",
+    "13:11:59 GMT+20",
+    "1:11:59 GMT-1",
+    "14:11:59:120",
+    "15:11:59.120",
+    "3:11:59+05:30",
+    "4:05:59.120-01:05",
+    "5:11:59",
+    "2:05 PM",
+    "6:05 A.M.",
+    "1:05 IST",
+    "02:05", ]
+# 通过正则匹配得到时区、修改时间
+for i in code:
+    for j in rules_hour:
+        a = re.findall(j, i)
+        if len(a):
+            match['recordtime_hour'].append(a)
+            break
+b = None
+for i in code:
+    for j in rules_timezone:
+        b = re.findall(j, i)
+        if len(b):
+            match['timezone'].append(b)
+            break
+# 分析主要工作时间
+analyse_mainworktime(match['recordtime_hour'])
+print(match)
