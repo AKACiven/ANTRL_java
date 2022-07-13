@@ -17,12 +17,17 @@
 # UTC+08:00、+08:
 import re
 
+import numpy as np
+
+# 为了实现更加精准的确认
+def sigmoid(x, offset):
+    return 1.0 / (1.0 + np.exp(-x+offset))
 
 # 对活动时间进行分析 凌晨：23~7 上午：8~11 中午：12~14 下午：15~18 晚上：19~22
 def analyse_mainworktime(list_t):
     # 用于统计
     tmplist = [0, 0, 0, 0, 0]
-    timelist = ['凌晨', '上午', '中午', '中午', '下午', '晚上']
+    timelist = ['凌晨', '上午', '中午', '下午', '晚上']
     for i in list_t:
         # 无标注 am pm
         if isinstance(i[0], str):
@@ -59,7 +64,9 @@ def analyse_mainworktime(list_t):
     print(tmplist)
     maxtime = max(tmplist)
     for i in [0, 1, 2, 3, 4]:
-        if tmplist[i] == maxtime:
+        # 若考虑到效率可以简化
+        judge = 0.8
+        if sigmoid(tmplist[i], 0.5 * maxtime) >= judge:
             match['main_worktime'].append(timelist[i])
 
 
@@ -85,11 +92,11 @@ rules_hour = [
 code = [
     "11:11:59 a.m. +05:30",
     "12:11:59 a.m.",
-    "13:11:59 PST",
+    "8:11:59 PST",
     "13:11:59 UTC+10",
-    "13:11:59 UTC-1",
+    "10:11:59 UTC-1",
     "13:11:59 GMT+20",
-    "1:11:59 GMT-1",
+    "9:11:59 GMT-1",
     "14:11:59:120",
     "15:11:59.120",
     "3:11:59+05:30",
@@ -113,6 +120,6 @@ for i in code:
         if len(b):
             match['timezone'].append(b)
             break
-# 分析主要工作时间
+# 分析主要工作时间，另外由于时区是一个单独的无关联属性，所以不做处理
 analyse_mainworktime(match['recordtime_hour'])
 print(match)
