@@ -8,7 +8,8 @@ jdkusage = {
     'newusage_num': 0,
     'newusage': [],
     'abandonusage_num': 0,
-    'abandonusage': []
+    'abandonusage': [],
+    'safety_concern': 0
 }
 rules = [r"\-\>",
          r"\.stream",
@@ -40,6 +41,14 @@ rules_abandon = [
     r"Thread\.stop",
     r"jdk\.snmp"
 ]
+rules_safety = [
+    r"public final",
+    r"private final",
+    r"SecurityManager",
+    r"synchronized",
+    r"volatile",
+    r"ReentrantLock"
+]
 code_fp = open(filename, encoding="UTF-8")
 code = code_fp.read()
 # 这里匹配jdk8之后的
@@ -63,6 +72,15 @@ for i in rules_abandon:
         match.append(a[0])
 jdkusage['abandonusage'] = match
 jdkusage['abandonusage_num'] = matchtimes
+
+# 这里匹配是有安全用法的次数
+match = []
+matchtimes = 0
+for i in rules_safety:
+    a = re.findall(i, code)
+    if a:
+        matchtimes += 1
+jdkusage['safety_concern'] = matchtimes
 # 这里将java jdk8以及之后的常用版本特性打印
 print(jdkusage)
 code_fp.close()

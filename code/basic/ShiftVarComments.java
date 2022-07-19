@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.util.List;
 
 public class ShiftVarComments {
-    public static class CommentShifter extends CymbolBaseListener {
+    public final static class CommentShifter extends CymbolBaseListener {
         BufferedTokenStream tokens;
         TokenStreamRewriter rewriter;
 		/** Create TokenStreamRewriter attached to token stream

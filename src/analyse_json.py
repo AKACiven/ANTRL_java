@@ -12,7 +12,7 @@ extract_info = {
     'words_precision_range': 0.0,
     'english_usage': 0.0
 }
-# 判读用词准确程度(0~1.0)，将精准匹配和模糊匹配求比例，考虑到精准匹配要求严格，所以乘以一个系数适度扩大
+# 判读用词准确程度(0~1.0)，这里我们将精准匹配和模糊匹配求比例，考虑到精准匹配要求严格，所以乘以一个系数适度扩大
 def analyse_precision(precise, diff):
     range3 = (precise * 1.5) / diff
     if range3 > 1.0:

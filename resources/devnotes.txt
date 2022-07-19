@@ -12,3 +12,17 @@ idea：判断有无文件.idea
 gradle：有无文件build.gradle
 springboot： 文件pom.xml中有无spring-boot-starter-parent
 这一块可能需要有经验的人士，需要 工具-特征-用途 三个方面的信息（否则水太深把握不住）
+
+extra：
+分析输出内的时间戳(获取输出内容即可)
+jdk8之后被废除的安全性考虑（java安全性考虑很充足，主要存在的是线程安全问题；下面是不针对版本的安全用法）
+    public final
+    private final
+    SecurityManager
+    synchronized
+    volatile
+    ReentrantLock
+
+1.主页 标题 介绍 pics
+2、功能页 输入文件、text、folder 
+3、大五人格-饼 个人信息-表格 辞海-其他 
